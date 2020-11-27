@@ -20,22 +20,32 @@ import { actionCreators } from "./store";
 
 class Header extends Component {
     getListArea = () => {
-        const { focused, list } = this.props;
-        if (focused) {
+        const { focused, list, page, mouseIn, totalPage, handleMouseEnter, handleMouseLeave, handleChangePage } = this.props;
+        const newList = list.toJS();
+        const pageList = [];
+        if(newList.length > 0) {
+            const len = page * 10 > newList.length ? newList.length : page * 10;
+            for (let i = (page - 1) * 10; i < len; i++) {
+                pageList.push(
+                    <SearchInfoItem key={newList[i] + i}>
+                        {newList[i]}
+                    </SearchInfoItem>
+                );
+            }
+        }
+        
+        if (focused || mouseIn) {
             return (
-                <SearchInfo>
+                <SearchInfo 
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                >
                     <SearchInfoTitle>
                         热门搜索
-                        <SearchInfoSwitch>换一批</SearchInfoSwitch>
+                        <SearchInfoSwitch onClick={() => handleChangePage(page, totalPage)}>换一批</SearchInfoSwitch>
                     </SearchInfoTitle>
                     <SearchInfoList>
-                        {list.map((item, key) => {
-                            return (
-                                <SearchInfoItem key={item + key}>
-                                    {item}
-                                </SearchInfoItem>
-                            );
-                        })}
+                        {pageList}
                     </SearchInfoList>
                 </SearchInfo>
             );
@@ -85,12 +95,16 @@ class Header extends Component {
             </HeaderWrapper>
         );
     }
+
 }
 
 const mapStateToProps = (state) => {
     return {
         focused: state.getIn(["header", "focused"]),
         list: state.getIn(["header", "list"]),
+        page: state.getIn(["header", 'page']),
+        mouseIn: state.getIn(["header", "mouseIn"]),
+        totalPage: state.getIn(["header", 'totalPage'])
     };
 };
 
@@ -103,6 +117,20 @@ const mapDispatchToProps = (dispatch) => {
         handleInputBlur() {
             dispatch(actionCreators.searchBlur());
         },
+        handleMouseEnter() {
+            dispatch(actionCreators.mouseEnter())
+        },
+        handleMouseLeave() {
+            dispatch(actionCreators.mouseLeave())
+        },
+        handleChangePage(page, totalPage) {
+            if(page < totalPage) {
+                dispatch(actionCreators.changePage(page+1))
+            }else {
+                dispatch(actionCreators.changePage(1))
+            }
+            
+        }
     };
 };
 
