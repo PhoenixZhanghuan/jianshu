@@ -20,10 +20,19 @@ import { actionCreators } from "./store";
 
 class Header extends Component {
     getListArea = () => {
-        const { focused, list, page, mouseIn, totalPage, handleMouseEnter, handleMouseLeave, handleChangePage } = this.props;
+        const {
+            focused,
+            list,
+            page,
+            mouseIn,
+            totalPage,
+            handleMouseEnter,
+            handleMouseLeave,
+            handleChangePage,
+        } = this.props;
         const newList = list.toJS();
         const pageList = [];
-        if(newList.length > 0) {
+        if (newList.length > 0) {
             const len = page * 10 > newList.length ? newList.length : page * 10;
             for (let i = (page - 1) * 10; i < len; i++) {
                 pageList.push(
@@ -33,26 +42,38 @@ class Header extends Component {
                 );
             }
         }
-        
+
         if (focused || mouseIn) {
             return (
-                <SearchInfo 
+                <SearchInfo
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                 >
                     <SearchInfoTitle>
                         热门搜索
-                        <SearchInfoSwitch onClick={() => handleChangePage(page, totalPage)}>换一批</SearchInfoSwitch>
+                        <SearchInfoSwitch
+                            onClick={() =>
+                                handleChangePage(page, totalPage, this.spinIcon)
+                            }
+                        >
+                            <i
+                                ref={(icon) => {
+                                    this.spinIcon = icon;
+                                }}
+                                className="iconfont spin"
+                            >
+                                &#xe709;
+                            </i>
+                            换一批
+                        </SearchInfoSwitch>
                     </SearchInfoTitle>
-                    <SearchInfoList>
-                        {pageList}
-                    </SearchInfoList>
+                    <SearchInfoList>{pageList}</SearchInfoList>
                 </SearchInfo>
             );
         }
     };
     render() {
-        const { focused, handleInputFocus, handleInputBlur } = this.props;
+        const { focused, handleInputFocus, handleInputBlur, list } = this.props;
         return (
             <HeaderWrapper>
                 <Logo />
@@ -71,13 +92,15 @@ class Header extends Component {
                         >
                             <NavSearch
                                 className={focused ? "focused" : ""}
-                                onFocus={handleInputFocus}
+                                onFocus={() => handleInputFocus(list)}
                                 onBlur={handleInputBlur}
                             ></NavSearch>
                         </CSSTransition>
                         <i
                             className={
-                                focused ? "focused iconfont" : "iconfont"
+                                focused
+                                    ? "focused iconfont zoom"
+                                    : "iconfont zoom"
                             }
                         >
                             &#xe614;
@@ -95,42 +118,47 @@ class Header extends Component {
             </HeaderWrapper>
         );
     }
-
 }
 
 const mapStateToProps = (state) => {
     return {
         focused: state.getIn(["header", "focused"]),
         list: state.getIn(["header", "list"]),
-        page: state.getIn(["header", 'page']),
+        page: state.getIn(["header", "page"]),
         mouseIn: state.getIn(["header", "mouseIn"]),
-        totalPage: state.getIn(["header", 'totalPage'])
+        totalPage: state.getIn(["header", "totalPage"]),
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        handleInputFocus() {
-            dispatch(actionCreators.getList());
+        handleInputFocus(list) {
+            list.size === 0 && dispatch(actionCreators.getList());
             dispatch(actionCreators.searchFocus());
         },
         handleInputBlur() {
             dispatch(actionCreators.searchBlur());
         },
         handleMouseEnter() {
-            dispatch(actionCreators.mouseEnter())
+            dispatch(actionCreators.mouseEnter());
         },
         handleMouseLeave() {
-            dispatch(actionCreators.mouseLeave())
+            dispatch(actionCreators.mouseLeave());
         },
-        handleChangePage(page, totalPage) {
-            if(page < totalPage) {
-                dispatch(actionCreators.changePage(page+1))
-            }else {
-                dispatch(actionCreators.changePage(1))
+        handleChangePage(page, totalPage, spin) {
+            let originAngle = spin.style.transform.replace(/[^0-9]/gi, "");
+            if (originAngle) {
+                originAngle = parseInt(originAngle, 10);
+            } else {
+                originAngle = 0;
             }
-            
-        }
+            spin.style.transform = "rotate(" + originAngle + 360 + "deg)";
+            if (page < totalPage) {
+                dispatch(actionCreators.changePage(page + 1));
+            } else {
+                dispatch(actionCreators.changePage(1));
+            }
+        },
     };
 };
 
