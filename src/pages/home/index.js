@@ -1,10 +1,10 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import { HomeWrapper, HomeLeft, HomeRight, BackTop } from "./style";
 import { List, Topic, Recommend, Writter } from "./component";
 import { actionCreators } from "./store";
 import { connect } from "react-redux";
 
-class Home extends Component {
+class Home extends PureComponent {
     render() {
         const { showScroll } = this.props;
 
