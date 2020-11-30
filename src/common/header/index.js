@@ -18,7 +18,7 @@ import { CSSTransition } from "react-transition-group";
 import { connect } from "react-redux";
 import { actionCreators } from "./store";
 import { Link } from "react-router-dom";
-import {actionCreators as loginActionCreators} from '../../pages/login/store';
+import { actionCreators as loginActionCreators } from "../../pages/login/store";
 class Header extends PureComponent {
     getListArea = () => {
         const {
@@ -92,10 +92,12 @@ class Header extends PureComponent {
                     <NavItem className="left active">首页</NavItem>
                     <NavItem className="left">下载App</NavItem>
                     {login ? (
-                        <NavItem onClick={logout} className="right">退出</NavItem>
+                        <NavItem onClick={logout} className="right">
+                            退出
+                        </NavItem>
                     ) : (
                         <Link to="/login">
-                            <NavItem className="right" >登录</NavItem>
+                            <NavItem className="right">登录</NavItem>
                         </Link>
                     )}
 
@@ -126,10 +128,12 @@ class Header extends PureComponent {
                         {this.getListArea()}
                     </SearchWrapper>
                     <Addition>
-                        <Button className="writting">
-                            <i className="iconfont">&#xe708;</i>
-                            写文章
-                        </Button>
+                        <Link to="/write">
+                            <Button className="writting">
+                                <i className="iconfont">&#xe708;</i>
+                                写文章
+                            </Button>
+                        </Link>
                         <Button className="reg">注册</Button>
                     </Addition>
                 </Nav>
@@ -179,8 +183,8 @@ const mapDispatchToProps = (dispatch) => {
             }
         },
         logout() {
-            dispatch(loginActionCreators.logout())
-        }
+            dispatch(loginActionCreators.logout());
+        },
     };
 };
 
